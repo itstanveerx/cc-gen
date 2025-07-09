@@ -1,1 +1,88 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CC Generator - Free</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      background: #238636;
+      color: white;
+      cursor: pointer;
+    }
+    .card {
+      margin-top: 20px;
+      background: #161b22;
+      padding: 15px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <h1>💳 CC Generator</h1>
+  <input type="text" id="bin" placeholder="Enter BIN (e.g., 414141)" />
+  <button onclick="generate()">Generate</button>  <div class="card" id="result" style="display:none;">
+    <p><b>Card:</b> <span id="ccnum"></span></p>
+    <p><b>Expiry:</b> <span id="exp"></span></p>
+    <p><b>CVV:</b> <span id="cvv"></span></p>
+    <button onclick="copy()">Copy All</button>
+  </div>  <script>
+    function generateCardNumber(bin) {
+      let number = bin;
+      while (number.length < 15) {
+        number += Math.floor(Math.random() * 10);
+      }
+      number += getLuhnChecksum(number);
+      return number;
+    }
 
+    function getLuhnChecksum(number) {
+      let sum = 0;
+      for (let i = 0; i < number.length; i++) {
+        let digit = parseInt(number[number.length - 1 - i]);
+        if (i % 2 === 0) {
+          digit *= 2;
+          if (digit > 9) digit -= 9;
+        }
+        sum += digit;
+      }
+      return (10 - (sum % 10)) % 10;
+    }
+
+    function generate() {
+      const bin = document.getElementById('bin').value || '414141';
+      const ccnum = generateCardNumber(bin);
+      const exp = `${Math.floor(Math.random() * 12 + 1).toString().padStart(2, '0')}/${Math.floor(Math.random() * 4 + 26)}`;
+      const cvv = Math.floor(100 + Math.random() * 900);
+
+      document.getElementById('ccnum').innerText = ccnum;
+      document.getElementById('exp').innerText = exp;
+      document.getElementById('cvv').innerText = cvv;
+      document.getElementById('result').style.display = 'block';
+    }
+
+    function copy() {
+      const card = document.getElementById('ccnum').innerText;
+      const exp = document.getElementById('exp').innerText;
+      const cvv = document.getElementById('cvv').innerText;
+      const text = `${card}|${exp}|${cvv}`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied!");
+      });
+    }
+  </script></body>
+  </html>
